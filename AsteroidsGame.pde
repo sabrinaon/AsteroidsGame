@@ -1,27 +1,97 @@
 //your variable declarations here
-SpaceShip bob;
-Stars [] bling;
+SpaceShip sabrina;
+Stars [] bling = new Stars[50];
+ArrayList < Asteroid> rocks;
+ArrayList <Bullet> bullets;
 public void setup() 
 {
   //your code here
   size(500,500);
-  bob = new SpaceShip();
-  bling = new Stars[30];
+  sabrina = new SpaceShip();
   for(int i=0; i < bling.length; i++)
   {
-    bling[i] = new Stars((int)(Math.random()*500),(int)(Math.random()*500));
+    bling[i] = new Stars();
   }
+  rocks = new ArrayList <Asteroid>();
+    for(int r=0; r < 10; r++)
+    {
+      rocks.add(new Asteroid());
+    }
+  bullets = new ArrayList <Bullet> () ;
 }
 public void draw() 
 {
   //your code here
   background(0);
+  sabrina.show();
+  sabrina.move();
   for(int i=0; i <bling.length; i++)
   {
     bling[i].show();
   } 
-  bob.show();
-  bob.move();
+  for(int i=0;i<bullets.size();i++)
+    {
+      bullets.get(i).show();
+      bullets.get(i).move();
+    }
+   
+    for(int i=0;i<rocks.size();i++)
+    {
+
+      if(dist(rocks.get(i).getX(),rocks.get(i).getY(),sabrina.getX(),sabrina.getY())<20)
+      {
+        rocks.remove(i);
+        rocks.add(new Asteroid());
+      }
+      else 
+      {
+      rocks.get(i).show();
+      rocks.get(i).move();
+      }
+    }
+    for(int r=0;r<rocks.size();r++)
+    {
+      for(int i=0;i<bullets.size();i++)
+      {
+        if(dist(rocks.get(r).getX(),rocks.get(r).getY(),bullets.get(i).getX(),bullets.get(i).getY())<20)
+        {
+          rocks.remove(r);
+          bullets.remove(i);
+          rocks.add(new Asteroid());
+        }
+      }
+    }
+  }
+public void keyPressed()
+{
+  if(key == 'h')
+  {
+  sabrina.setX((int)(Math.random()*499) + 50);
+  sabrina.setY((int)(Math.random()*400) + 50);
+  sabrina.setPointDirection((int)(Math.random()*360));
+  sabrina.setDirectionX(0);
+  sabrina.setDirectionY(0);
+  }
+  if(key == 'w')
+  {
+  sabrina.accelerate(Math.random());
+  }
+  if(key == 's')
+  {
+    sabrina.accelerate(-Math.random());
+  }
+  if(key == 'd')
+  {
+    sabrina.rotate(-10);
+  }
+  if(key == 'a')
+  {
+    sabrina.rotate(10);
+  }
+  if(key == ' ')
+  {
+    bullets.add(new Bullet(sabrina));
+  }
 }
 class SpaceShip extends Floater  
 {   
@@ -133,75 +203,116 @@ abstract class Floater //Do NOT modify the Floater class! Make changes in the Sp
     endShape(CLOSE);  
   }   
 } 
-class Stars extends Floater
+public class Stars
+{
+  int myX, myY, mySize;
+  public Stars()
   {
-  Stars(double a, double b)
-  {
-  corners = 10;
-  xCorners = new int[corners];
-  xCorners[0] = -1;
-  xCorners[1] = 2;
-  xCorners[2] = 2;
-  xCorners[3] = 4;
-  xCorners[4] = 7;
-  xCorners[5] = 5;
-  xCorners[6] = 7;
-  xCorners[7] = 4;
-  xCorners[8] = 2;
-  xCorners[9] = 2;
-  yCorners = new int[corners];
-  yCorners[0] = 0;
-  yCorners[1] = 1;
-  yCorners[2] = 5;
-  yCorners[3] = 2;
-  yCorners[4] = 3;
-  yCorners[5] = 0;
-  yCorners[6] = -3;
-  yCorners[7] = -2;
-  yCorners[8] = -5;
-  yCorners[9] = -1;
-  myColor = 70;
-  myCenterX = a;
-  myCenterY = b;
-  myDirectionX = 0;
-  myDirectionY = 0;
-  myPointDirection = 0;
+    myX = (int)(Math.random()*width);
+    myY = (int)(Math.random()*height);
+    mySize = (int)(Math.random()*6);
   }
-  public void setX(int x){myCenterX = x;}
+  public void show()
+  {
+    noStroke();
+    fill(240,240,148);
+    ellipse(myX, myY, mySize, mySize);
+  }
+}
+class Asteroid extends Floater
+  {
+    private int rotSpeed;
+    public Asteroid()
+  {
+    if(Math.random()<.5)
+    {
+      rotSpeed=2;
+    }
+    else 
+    {
+      rotSpeed=-2;      
+    }
+    corners = 6;
+    xCorners = new int[corners];
+    yCorners = new int[corners];
+    xCorners[0] = -11;
+    yCorners[0] = -8;
+    xCorners[1] = 7;
+    yCorners[1] = -8;
+    xCorners[2] = 13;
+    yCorners[2] = 0;
+    xCorners[3] = 6;
+    yCorners[3] = 10;
+    xCorners[4] = -11;
+    yCorners[4] = 8;
+    xCorners[5] = -5;
+    yCorners[5] = 0;
+    myCenterX=(int)(Math.random()*500);
+    myCenterY=(int)(Math.random()*500);
+    if(Math.random()>.5)
+    {
+      myDirectionX=1;
+    }
+    else
+    {
+      myDirectionX=-1;    
+    }
+    if(Math.random()>.5)
+    {
+      myDirectionY=1;
+    }
+    else
+    {
+      myDirectionY=-1;
+    }
+    myPointDirection=(int)(Math.random()*360);
+    myColor=color(119,27,20);
+    }
+  public void setX(int x){myCenterX=x;}
   public int getX(){return (int)myCenterX;}
-  public void setY(int y){myCenterY = y;}
+  public void setY(int y){myCenterY=y;}
   public int getY(){return (int)myCenterY;}
-  public void setDirectionX(double x){myDirectionX = x;}
+  public void setDirectionX(double x){myDirectionX=x;}
   public double getDirectionX(){return myDirectionX;}
-  public void setDirectionY(double y){myDirectionY = y;}
+  public void setDirectionY(double y){myDirectionY=y;}
   public double getDirectionY(){return myDirectionY;}
-  public void setPointDirection(int degrees){myPointDirection = degrees;}
-  public double getPointDirection(){return myPointDirection;}
-  }
-public void keyPressed()
+  public void setPointDirection(int degrees){myPointDirection=degrees;}
+  public double getPointDirection(){return myPointDirection;} 
+  public void move()
   {
-  if(key == 'h')
+    rotate(rotSpeed);
+    super.move();
+  }
+}
+class Bullet extends Floater
+{
+  private int myColor;
+  private double dRadians;
+  public Bullet(SpaceShip theShip)
   {
-  bob.setX((int)(Math.random()*499) + 50);
-  bob.setY((int)(Math.random()*400) + 50);
-  bob.setPointDirection((int)(Math.random()*360));
-  bob.setDirectionX(0);
-  bob.setDirectionY(0);
+    myCenterX=theShip.getX();
+    myCenterY=theShip.getY();
+    myPointDirection=theShip.getPointDirection();
+    dRadians =myPointDirection*(Math.PI/180);
+    myDirectionX=3*Math.cos(dRadians) + theShip.getDirectionX();
+    myDirectionY=3*Math.sin(dRadians) + theShip.getDirectionY();
+    myColor=color(23,145,129);
   }
-  if(key == 'a')
+  public void show()
   {
-  bob.accelerate(Math.random());
+    noStroke();
+    fill(myColor);
+    ellipse((int)myCenterX,(int)myCenterY,10,10);
   }
-  if(key == 'd')
-  {
-  bob.accelerate(-Math.random());
-  }
-  if(key == 'l')
-  {
-  bob.rotate(-10);
-  }
-  if(key == 'r')
-  {
-  bob.rotate(10);
-  }
-  }
+      public void setX(int x){myCenterX=x;}
+      public int getX(){return (int)myCenterX;}
+      public void setY(int y){myCenterY=y;}
+      public int getY(){return (int)myCenterY;}
+      public void setDirectionX(double x){myDirectionX=x;}
+      public double getDirectionX(){return myDirectionX;}
+      public void setDirectionY(double y){myDirectionY=y;}
+      public double getDirectionY(){return myDirectionY;}
+      public void setPointDirection(int degrees){myPointDirection=degrees;}
+      public double getPointDirection(){return myPointDirection;}  
+}
+
